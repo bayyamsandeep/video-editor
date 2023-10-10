@@ -1,3 +1,5 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 .App {
     text-align: center;
 }
@@ -54,4 +56,70 @@
         -webkit-transform: rotate(359deg);
         transform: rotate(359deg);
     }
+}
+
+
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-item {
+    width: 150px;
+    margin-bottom: 5px;
+}
+
+.nav-link {
+    width: 145px;
+    height: 2.625rem;
+    color: #1E255E !important;
+    font-family: var(--studio-font-family-name, 'Open Sans'), 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.nav-link:hover {
+    color: #8F87E7 !important;
+}
+
+.nav-link.active {
+    color: #FFF !important;
+    font-family: var(--studio-font-family-name, 'Open Sans'), 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-transform: capitalize;
+    border-radius: 0.75rem;
+    background-color: #0d6efd !important;
+}
+
+.btn:disabled {
+    background-color: gray !important;
+    border-color: gray !important;
+    color: black !important;
+}
+
+#text-input {
+    height: 45px;
+    min-width: 500px;
+    border: 1px solid lightgray;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 0 5px;
+    background: no-repeat center bottom, center calc(100% - 1px);
+    background-size: 0 100%, 100% 100%;
+    transition: background 0s ease-out;
+}
+
+#text-input:focus {
+    outline: none !important;
+    border-bottom-color: transparent;
+    background-size: 100% 100%, 100% 100%;
+    transition-duration: 0.3s;
+    box-shadow: none;
+    background-image: linear-gradient(to top, #0d6efd 2px, rgba(70, 128, 255, 0) 1px), linear-gradient(to top, #ced4da 1px, rgba(206, 212, 218, 0) 1px);
 }
