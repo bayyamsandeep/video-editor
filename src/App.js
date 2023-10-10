@@ -68,7 +68,13 @@ const App = () => {
 
             servicePromise = fetchFile(inputVideoFile).then(fileResp => ffmpeg.writeFile(inputVideoFile.name, fileResp))
                 .finally(() => {
-                    return ffmpeg.exec(['-i', inputVideoFile.name, '-ss', '00:00:10', '-to', '00:00:15', 'output.mp4'])
+
+                    //  trime the video to same video format
+                    return ffmpeg.exec(['-ss', '00:00:00', '-to', '00:00:15', '-i', inputVideoFile.name, '-c', 'copy', 'output.mp4'])
+
+                    //  trime the video to different video format
+                    // return ffmpeg.exec(['-i', inputVideoFile.name, '-ss', '00:00:10', '-to', '00:00:15', 'output.mkv']);
+
                 });
             promiseArray.push(servicePromise)
 
@@ -84,9 +90,12 @@ const App = () => {
         }
     };
 
+    function getFileFormat(filename) {
+        return filename.split('.').pop().toLowerCase();
+    }
+
     const handleMerge = async () => {
         let ffmpeg = ffmpegRef.current
-        let servicePromise, promiseArray = [];
         if (loaded) {
             setProcessing(true)
             setMode('merge')
@@ -95,7 +104,15 @@ const App = () => {
             ffmpeg.writeFile(inputFileOne.name, await fetchFile(inputFileOne));
             ffmpeg.writeFile(inputFileTwo.name, await fetchFile(inputFileTwo));
 
-            await ffmpeg.exec(['-i', inputFileOne.name, '-i', inputFileTwo.name, '-filter_complex', 'concat=n=2:v=1:a=1 [v] [a]', '-map', '[v]', '-map', '[a]', 'output.mp4']);
+            if (getFileFormat(inputFileOne.name) === getFileFormat(inputFileTwo.name)) {
+                // videos with same video format and codec with out re-encoding
+                const listFileContent = `file '${inputFileOne.name}'\nfile '${inputFileTwo.name}'`;
+                await ffmpeg.writeFile('list.txt', new TextEncoder().encode(listFileContent));
+                await ffmpeg.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', 'output.mp4']);
+            } else {
+                // videos with different video format/codec with re-encoding
+                await ffmpeg.exec(['-i', inputFileOne.name, '-i', inputFileTwo.name, '-filter_complex', 'concat=n=2:v=1:a=1 [v] [a]', '-map', '[v]', '-map', '[a]', 'output.mp4']);
+            }
 
             ffmpeg.readFile('output.mp4').then(res => {
                 const url = URL.createObjectURL(new Blob([res.buffer], { type: 'video/mp4' }));
