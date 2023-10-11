@@ -30,6 +30,9 @@ const App = () => {
     const [inputFileTwo, setInputFileTwo] = useState('');
     const [mergeInputUrlOne, setmergeInputUrlOne] = useState('');
     const [mergeInputUrlTwo, setmergeInputUrlTwo] = useState('');
+    const [overlayMode, setOverlayMode] = useState('text');
+    const [overlayImage, setOverlayImage] = useState('');
+    const [overlaySrc, setOverlaySrc] = useState('');
     const [overlayText, setOverlayText] = useState('');
     const [videoFile, setVideoFile] = useState('');
     const [videoUrl, setVideoUrl] = useState('');
@@ -60,7 +63,7 @@ const App = () => {
     }, [])
 
     const handleChange = (e, name) => {
-        let file = e.target.files?.[0];
+        let file = e?.target?.files?.[0];
         if (name === 'inputVideo') {
             setInputVideoFile(file);
             setInputUrl(URL.createObjectURL(file))
@@ -75,6 +78,11 @@ const App = () => {
         } else if (name === 'videoFile') {
             setVideoFile(file)
             setVideoUrl(URL.createObjectURL(file))
+        } else if (name === 'overlayMode') {
+            setOverlayMode(e)
+        } else if (name === 'overlayImage') {
+            setOverlayImage(file)
+            setOverlaySrc(URL.createObjectURL(file))
         }
     };
 
@@ -140,7 +148,7 @@ const App = () => {
                 } else {
                     // videos with different video format/codec with re-encoding
 
-                    return ffmpeg.exec(['-i', inputFileOne.name, '-i', inputFileTwo.name, '-filter_complex', 'concat=n=2:v=1:a=1 [v] [a]', '-map', '[v]', '-map', '[a]', 'output.mp4']);
+                    return ffmpeg.exec(['-i', inputFileOne.name, '-i', inputFileTwo.name, '-filter_complex', 'concat=n=2:v=1:a=1 [v] [a]', '-map', '[v]', '-map', '[a]', '-preset', 'ultrafast', 'output.mp4']);
                 }
 
             }).finally(() => {
@@ -162,16 +170,27 @@ const App = () => {
             setProcessing(true)
 
             const fontLink = `https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf`;
-            const textFilter = `drawtext=fontfile=/arial.ttf:text='${overlayText}':x=100:y=100:fontsize=36:fontcolor=white`;
+            const textFilter = `drawtext=fontfile=/arial.ttf:text='${overlayText}':x=100:y=100:fontsize=100:fontcolor=red`;
 
             servicePromise = fetchFile(videoFile).then(fileResp => ffmpeg.writeFile(videoFile.name, fileResp))
             promiseArray.push(servicePromise)
 
-            servicePromise = fetchFile(fontLink).then(fomtResp => ffmpeg.writeFile('arial.ttf', fomtResp))
-            promiseArray.push(servicePromise)
+            if (overlayMode === 'text') {
+                servicePromise = fetchFile(fontLink).then(fomtResp => ffmpeg.writeFile('arial.ttf', fomtResp))
+                promiseArray.push(servicePromise)
+            }
+
+            if (overlayMode === 'image') {
+                servicePromise = fetchFile(overlayImage).then(fileResp => ffmpeg.writeFile(overlayImage.name, fileResp))
+                promiseArray.push(servicePromise)
+            }
 
             Promise.all(promiseArray).then(_res => {
-                return ffmpeg.exec(['-i', videoFile.name, '-vf', textFilter, 'output.mp4',]);
+                if (overlayMode === 'text') {
+                    return ffmpeg.exec(['-i', videoFile.name, '-vf', textFilter, '-preset', 'ultrafast', 'output.mp4',]);
+                } else if (overlayMode === 'image') {
+                    return ffmpeg.exec(['-i', videoFile.name, '-i', overlayImage.name, '-filter_complex', '[1]scale=50:50[b];[0][b] overlay=(main_w-overlay_w)-50:y=(main_h-overlay_h)-80', '-preset', 'ultrafast', 'output.mp4']);
+                }
             }).finally(() => {
                 ffmpeg.readFile('output.mp4').then(res => {
                     const url = URL.createObjectURL(new Blob([res.buffer], { type: 'video/mp4' }));
@@ -184,15 +203,15 @@ const App = () => {
 
     const renderTrim = () => {
         return <React.Fragment>
-            <Row>
+            <Row className='m-0 p-0'>
                 <Col>
                     <h3 className='text-primary'>Trim video</h3>
                     <div className='mb-3 mt-5'>
-                        <input type='file' onChange={(e) => { handleChange(e, 'inputVideo') }} />
+                        <input type='file' onChange={(e) => { handleChange(e, 'inputVideo') }} accept="video/*" />
                     </div>
                 </Col>
             </Row>
-            <Row>
+            <Row className='m-0 p-0'>
                 <Col className='text-right'>
                     {inputUrl && <video controls src={inputUrl} width={'400px'} height={'400px'} />}
                 </Col>
@@ -209,11 +228,11 @@ const App = () => {
         return <React.Fragment>
             <h3 className='text-primary mt-3'>Merge video</h3>
             <div className='mb-3 mt-5'>
-                <input type='file' onChange={(e) => { handleChange(e, 'inputVideoOne') }} />
-                <input type='file' onChange={(e) => { handleChange(e, 'inputVideoTwo') }} />
+                <input type='file' onChange={(e) => { handleChange(e, 'inputVideoOne') }} accept="video/*" />
+                <input type='file' onChange={(e) => { handleChange(e, 'inputVideoTwo') }} accept="video/*" />
             </div>
 
-            <Row>
+            <Row className='m-0 p-0'>
                 <Col className='col text-right'>
                     <div>
                         <span>
@@ -233,37 +252,56 @@ const App = () => {
         </React.Fragment>
     }
 
+    const validateAddLayer = () => {
+        return videoUrl.length === 0 ||
+            (overlayMode === 'text' ? (overlayText.length === 0) : (overlaySrc.length === 0))
+    }
+
     const renderLayer = () => {
         return <React.Fragment>
-            <Row>
+            <Row className='m-0 p-0'>
                 <Col>
                     <h3 className='text-primary'>Add Layer</h3>
-                    <div className='mb-3 mt-5'>
-                        <input type='file' onChange={(e) => { handleChange(e, 'videoFile') }} />
+                    <div className='mb-3 mt-3'>
+                        <input type='file' onChange={(e) => { handleChange(e, 'videoFile') }} accept="video/*" />
                     </div>
-                    <div className='mb-3'>
-                        <label className='fw-bold mb-1'>Overlay Text</label> <br />
-                        <input type='text' onChange={(e) => { handleChange(e, 'overylayText') }} placeholder="Enter text to overlay" id='text-input' />
+                    <div className='mb-2'>
+                        <input type="radio" id="text" name="overlayMode" value="text" className='mx-1' checked={overlayMode === 'text'}
+                            onChange={() => handleChange('text', 'overlayMode')} />
+                        <label htmlFor="text" className='me-3'>Text</label>
+                        <input type="radio" id="image" name="overlayMode" value="image" className='ms-3 me-1' checked={overlayMode === 'image'}
+                            onChange={() => handleChange('image', 'overlayMode')}
+                        />
+                        <label htmlFor="image">Image</label>
                     </div>
+                    <div className='mb-2'>
+                        {overlayMode === 'text' ? <div>
+                            <label className='fw-bold mb-1'>Overlay Text</label> <br />
+                            <input type='text' onChange={(e) => { handleChange(e, 'overylayText') }} placeholder="Enter text to overlay" id='text-input' />
+                        </div> :
+                            <input type='file' onChange={(e) => { handleChange(e, 'overlayImage') }} accept="image/*" />}
+                    </div>
+                    {overlaySrc?.length > 0 && <div className='overlay-img-container text-center'>
+                        <img src={overlaySrc.default || overlaySrc} alt='overlay' className='overlay-image' />
+                    </div>}
                 </Col>
             </Row>
-            <Row>
+            <Row className='m-0 p-0'>
                 <Col>
                     {videoUrl && <video controls src={videoUrl} width={'500px'} height={'450px'} />}
                 </Col>
                 <Col className='text-left d-flex justify-content-center align-items-center'>
                     {processing && <i className="fa fa-spinner fa-3x text-primary" aria-hidden="true"></i>}
-                    {!processing && outputUrl && <video controls src={outputUrl} width={'400px'} height={'400px'} />}
+                    {!processing && outputUrl && <video controls src={outputUrl} width={'500px'} height={'450px'} />}
                 </Col>
             </Row>
-            <Button onClick={handleOverlay} className='m-2'>Add Layer</Button>
-
+            <Button onClick={handleOverlay} className='m-2' disabled={validateAddLayer()}>Add Layer</Button>
         </React.Fragment>
 
     }
 
     return <React.Fragment>
-        <Row className='text-center'>
+        <Row className='text-center m-0 p-0'>
             <Col>
                 <h1 className='mb-3'>Video Editor</h1>
                 <Tabs activeKey={activeTab} className="mb-1" onSelect={handleTabChange} >

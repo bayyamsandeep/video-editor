@@ -123,3 +123,19 @@
     box-shadow: none;
     background-image: linear-gradient(to top, #0d6efd 2px, rgba(70, 128, 255, 0) 1px), linear-gradient(to top, #ced4da 1px, rgba(206, 212, 218, 0) 1px);
 }
+
+.overlay-img-container {
+    height: 150px;
+    width: 150px;
+    display: contents;
+}
+
+.overlay-image {
+    width: inherit;
+    height: inherit;
+    object-fit: contain;
+}
+
+video {
+    object-fit: inherit;
+}
