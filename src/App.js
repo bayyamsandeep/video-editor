@@ -139,17 +139,17 @@ const App = () => {
             promiseArray.push(servicePromise)
 
             Promise.all(promiseArray).then(_res => {
-                if (getFileFormat(inputFileOne.name) === getFileFormat(inputFileTwo.name)) {
-                    // videos with same video format and codec with out re-encoding
+                // if (getFileFormat(inputFileOne.name) === getFileFormat(inputFileTwo.name)) {
+                //     // videos with same video format and codec with out re-encoding
 
-                    const listFileContent = `file '${inputFileOne.name}'\nfile '${inputFileTwo.name}'`;
-                    ffmpeg.writeFile('list.txt', new TextEncoder().encode(listFileContent));
-                    return ffmpeg.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', 'output.mp4']);
-                } else {
-                    // videos with different video format/codec with re-encoding
+                //     const listFileContent = `file '${inputFileOne.name}'\nfile '${inputFileTwo.name}'`;
+                //     ffmpeg.writeFile('list.txt', new TextEncoder().encode(listFileContent));
+                //     return ffmpeg.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', 'output.mp4']);
+                // } else {
+                // videos with different video format/codec with re-encoding
 
-                    return ffmpeg.exec(['-i', inputFileOne.name, '-i', inputFileTwo.name, '-filter_complex', 'concat=n=2:v=1:a=1 [v] [a]', '-map', '[v]', '-map', '[a]', '-preset', 'ultrafast', 'output.mp4']);
-                }
+                return ffmpeg.exec(['-i', inputFileOne.name, '-i', inputFileTwo.name, '-filter_complex', 'concat=n=2:v=1:a=1 [v] [a]', '-map', '[v]', '-map', '[a]', '-preset', 'ultrafast', 'output.mp4']);
+                // }
 
             }).finally(() => {
                 ffmpeg.readFile('output.mp4').then(res => {
