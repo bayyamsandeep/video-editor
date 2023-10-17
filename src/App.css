@@ -104,36 +104,36 @@
 }
 
 #text-input {
-    height: 45px;
-    min-width: 500px;
-    border: 1px solid lightgray;
-    border-radius: 10px;
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    border: 1px solid transparent;
+    /* border-radius: 10px; */
     font-size: 20px;
-    padding: 0 5px;
-    background: no-repeat center bottom, center calc(100% - 1px);
-    background-size: 0 100%, 100% 100%;
-    transition: background 0s ease-out;
+    /* padding: 0 5px; */
+    background-color: transparent;
+    /* background: no-repeat center bottom, center calc(100% - 1px); */
+    /* background-size: 0 100%, 100% 100%; */
+    /* transition: background 0s ease-out; */
 }
 
 #text-input:focus {
     outline: none !important;
     border-bottom-color: transparent;
-    background-size: 100% 100%, 100% 100%;
+    /* background-size: 100% 100%, 100% 100%; */
     transition-duration: 0.3s;
     box-shadow: none;
-    background-image: linear-gradient(to top, #0d6efd 2px, rgba(70, 128, 255, 0) 1px), linear-gradient(to top, #ced4da 1px, rgba(206, 212, 218, 0) 1px);
+    /* background-image: linear-gradient(to top, #0d6efd 2px, rgba(70, 128, 255, 0) 1px), linear-gradient(to top, #ced4da 1px, rgba(206, 212, 218, 0) 1px); */
 }
 
 .overlay-img-container {
-    height: 150px;
-    width: 150px;
+    /* height: 150px;
+    width: 150px; */
     display: contents;
 }
 
 .overlay-image {
     width: inherit;
     height: inherit;
-    object-fit: contain;
 }
 
 video {
@@ -257,3 +257,21 @@ input[type="range"]::-ms-thumb {
     background-color: #ffffff;
     border: 3px solid red;
 } */
+
+.overlay-content-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+}
+
+.overlay-content-container video {
+    width: inherit;
+    height: inherit;
+}
+
+.overlay-layout {
+    position: absolute;
+    top: 0;
+    background-color: lightgray;
+    border: 1px solid salmon;
+}
