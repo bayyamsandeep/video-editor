@@ -40,7 +40,7 @@ const Layer = () => {
 
         Promise.all(promiseArray).then(([coreURL, wasmURL]) => {
             ffmpeg.load({ coreURL, wasmURL }).then(() => {
-                // console.log('loaded')
+                console.log('loaded')
                 setLoaded(true);
             });
         })
@@ -71,6 +71,9 @@ const Layer = () => {
             let xAxis = (overlayPostion.x * widthScale)
             let yAxis = (overlayPostion.y * heightScale)
 
+            let overlayWidth = (overlaySize.width * widthScale)
+            let overlayHeight = (overlaySize.height * heightScale)
+
             console.log('Xaxis', xAxis, 'YAxis', yAxis)
 
             const fontLink = `https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf`;
@@ -93,7 +96,8 @@ const Layer = () => {
                 if (overlayMode === 'text') {
                     return ffmpeg.exec(['-i', videoFile.name, '-vf', textFilter, '-preset', 'ultrafast', 'output.mp4',]);
                 } else if (overlayMode === 'image') {
-                    return ffmpeg.exec(['-i', videoFile.name, '-i', overlayImage.name, '-filter_complex', `[1]scale=${overlaySize.width}:${overlaySize.height}[b];[0][b] overlay=${xAxis}:y=${yAxis}`, '-preset', 'ultrafast', 'output.mp4']);
+                    return ffmpeg.exec(['-i', videoFile.name, '-i', overlayImage.name, '-filter_complex', `[1]scale=${parseInt(overlayWidth)}:${overlayHeight}[b];[0][b] overlay=${xAxis}:${yAxis}`,
+                        '-preset', 'ultrafast', 'output.mp4']);
                 }
             }).finally(() => {
                 ffmpeg.readFile('output.mp4').then(res => {
