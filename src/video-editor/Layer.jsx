@@ -75,8 +75,8 @@ const Layer = () => {
             let xAxis = (overlayPostion.x * widthScale)
             let yAxis = (overlayPostion.y * heightScale)
 
-            let overlayWidth = (overlaySize.width * widthScale)
-            let overlayHeight = (overlaySize.height * heightScale)
+            let overlayWidth = (parseInt(overlaySize.width) * widthScale)
+            let overlayHeight = (parseInt(overlaySize.height) * heightScale)
 
 
             const fontLink = `https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf`;
@@ -99,7 +99,7 @@ const Layer = () => {
                 if (overlayMode === 'text') {
                     return ffmpeg.exec(['-i', videoFile.name, '-vf', textFilter, '-preset', 'ultrafast', 'output.mp4',]);
                 } else if (overlayMode === 'image') {
-                    return ffmpeg.exec(['-i', videoFile.name, '-i', overlayImage.name, '-filter_complex', `[1]scale=${parseInt(overlayWidth)}:${overlayHeight}[b];[0][b] overlay=${xAxis}:${yAxis}`,
+                    return ffmpeg.exec(['-i', videoFile.name, '-i', overlayImage.name, '-filter_complex', `[1]scale=${overlayWidth}:${overlayHeight}[b];[0][b] overlay=${xAxis}:${yAxis}`,
                         '-preset', 'ultrafast', 'output.mp4']);
                 }
             }).finally(() => {
