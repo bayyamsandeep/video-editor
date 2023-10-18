@@ -68,16 +68,19 @@ const Layer = () => {
         if (loaded) {
             setProcessing(true)
 
+            let fontSize = (60 * widthScale);
+
+            console.log('fontSize', fontSize)
+
             let xAxis = (overlayPostion.x * widthScale)
             let yAxis = (overlayPostion.y * heightScale)
 
             let overlayWidth = (overlaySize.width * widthScale)
             let overlayHeight = (overlaySize.height * heightScale)
 
-            console.log('Xaxis', xAxis, 'YAxis', yAxis)
 
             const fontLink = `https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf`;
-            const textFilter = `drawtext=fontfile=/arial.ttf:text='${overlayText}':x=${xAxis}:y=${yAxis}:fontsize=20:fontcolor=red`;
+            const textFilter = `drawtext=fontfile=/arial.ttf:text='${overlayText}':x=${xAxis}:y=${yAxis}:fontsize=${fontSize}:fontcolor=red`;
 
             servicePromise = fetchFile(videoFile).then(fileResp => ffmpeg.writeFile(videoFile.name, fileResp))
             promiseArray.push(servicePromise)
@@ -135,7 +138,6 @@ const Layer = () => {
         setPosition({ x: d.x, y: d.y });
     }
 
-    console.log('overlyapostion', overlayPostion, videoMeta)
     return <section>
         {!loaded && <i className="fa fa-spinner fa-3x text-primary" aria-hidden="true"></i>}
         {loaded && <React.Fragment>
