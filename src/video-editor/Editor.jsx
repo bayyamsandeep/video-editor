@@ -4,6 +4,7 @@ import { Row, Col, Tabs, Tab } from "react-bootstrap";
 import Trim from './Trim';
 import Merge from './Merge';
 import Layer from './Layer';
+import AddMusic from './AddMusic';
 import '../App.css';
 
 const tabs = [
@@ -18,6 +19,10 @@ const tabs = [
     {
         key: 'layer',
         label: 'Layer'
+    },
+    {
+        key: 'music',
+        label: 'Music'
     }
 ];
 
@@ -37,6 +42,7 @@ const Editor = () => {
                         {activeTab === 'trim' && <Trim />}
                         {activeTab === 'merge' && <Merge />}
                         {activeTab === 'layer' && <Layer />}
+                        {activeTab === 'music' && <AddMusic />}
                     </Tab>)}
                 </Tabs>
             </Col>

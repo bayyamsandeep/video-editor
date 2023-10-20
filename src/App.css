@@ -275,3 +275,8 @@ input[type="range"]::-ms-thumb {
     background-color: lightgray;
     border: 1px solid salmon;
 }
+
+.wave-surfer-container {
+    max-width: 60%;
+    margin: 0 auto;
+}
